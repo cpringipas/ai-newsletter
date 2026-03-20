@@ -1,0 +1,53 @@
+<%- include("partials/head", { title: "Αρχική", site: config }) %>
+<main class="page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow"><%= config.newsletterTagline %></p>
+      <h1><%= config.newsletterName %></h1>
+      <p class="lead"><%= config.newsletterDescription %></p>
+      <% if (referrer) { %>
+        <p class="message">Σε κάλεσε ο/η <strong><%= referrer.email %></strong>. Αν γραφτείς, η πρόσκληση μετράει στο referral link του.</p>
+      <% } %>
+      <form class="signup" action="/subscribe" method="post">
+        <input type="email" name="email" placeholder="Το email σας" required />
+        <input type="hidden" name="referralCode" value="<%= referralCode %>" />
+        <button type="submit">Εγγραφή</button>
+      </form>
+      <% if (message) { %>
+        <p class="message"><%= message %></p>
+      <% } %>
+    </div>
+    <div class="hero-card">
+      <h2>Τι θα λαμβάνετε</h2>
+      <ul>
+        <li>5-10 σημαντικές ειδήσεις AI κάθε μέρα</li>
+        <li>Απλά ελληνικά, σαν να στο εξηγεί άνθρωπος και όχι manual</li>
+        <li>Παραδείγματα για Κύπρο, μικρές επιχειρήσεις και σχολεία</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="archive-preview">
+    <div class="section-head">
+      <h2>Προηγούμενα newsletters</h2>
+      <a href="/archive">Όλο το αρχείο</a>
+    </div>
+    <div class="cards">
+      <% if (!issues.length) { %>
+        <article class="card">
+          <h3>Δεν υπάρχει ακόμη έκδοση</h3>
+          <p>Χρησιμοποιήστε το admin panel για preview ή αποστολή της πρώτης έκδοσης.</p>
+        </article>
+      <% } %>
+      <% issues.slice(0, 6).forEach((issue) => { %>
+        <article class="card">
+          <p class="card-date"><%= formatGreekDate(issue.issue_date) %></p>
+          <h3><%= issue.subject_line_el || issue.title %></h3>
+          <p><%= issue.curiosity_hook_el || issue.intro_el %></p>
+          <a href="/issues/<%= issue.slug %>">Άνοιγμα</a>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+</main>
+<%- include("partials/foot") %>

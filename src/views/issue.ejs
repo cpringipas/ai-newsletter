@@ -1,0 +1,42 @@
+<%- include("partials/head", { title: issue.title, site: config }) %>
+<main class="page issue-page">
+  <section class="simple-header">
+    <a href="/archive">← Πίσω στο αρχείο</a>
+    <div>
+      <h1><%= issue.subject_line_el || issue.title %></h1>
+      <p class="lead compact"><%= issue.curiosity_hook_el || "" %></p>
+      <p><%= issue.intro_el %></p>
+    </div>
+  </section>
+
+  <section class="share-strip">
+    <div class="card">
+      <h2>Μοιράσου το newsletter</h2>
+      <p><%= issue.share_cta_el || "Αν σου φάνηκε χρήσιμο, στείλ' το και σε κάποιον άλλο." %></p>
+      <p><a href="<%= shareUrl %>"><%= shareUrl %></a></p>
+      <% if (referralCode) { %>
+        <p class="card-date">Το referral code σου είναι ενσωματωμένο στο link.</p>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="stories">
+    <% stories.forEach((story) => { %>
+      <article class="story-card">
+        <h2><%= story.ai_title_el || story.title %></h2>
+        <ul>
+          <% JSON.parse(story.bullets_el || "[]").forEach((bullet) => { %>
+            <li><%= bullet %></li>
+          <% }) %>
+        </ul>
+        <p><strong>Γιατί έχει σημασία:</strong> <%= story.why_matters_el %></p>
+        <% const useCases = JSON.parse(story.use_cases_el || "{}"); %>
+        <p><strong>Μικρές επιχειρήσεις:</strong> <%= useCases.smallBusinesses || "" %></p>
+        <p><strong>Εκπαιδευτικοί:</strong> <%= useCases.teachers || "" %></p>
+        <p><strong>Επιχειρηματίες:</strong> <%= useCases.entrepreneurs || "" %></p>
+        <a href="<%= story.url %>" target="_blank" rel="noreferrer">Πηγή</a>
+      </article>
+    <% }) %>
+  </section>
+</main>
+<%- include("partials/foot") %>

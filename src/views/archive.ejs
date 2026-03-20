@@ -1,0 +1,19 @@
+<%- include("partials/head", { title: "Αρχείο", site: config }) %>
+<main class="page">
+  <section class="simple-header">
+    <a href="/">← Αρχική</a>
+    <h1>Αρχείο newsletters</h1>
+  </section>
+  <section class="cards">
+    <% issues.forEach((issue) => { %>
+      <article class="card">
+        <p class="card-date"><%= formatGreekDate(issue.issue_date) %></p>
+        <h2><%= issue.title %></h2>
+        <p><%= issue.intro_el %></p>
+        <a href="/issues/<%= issue.slug %>">Διαβάστε το newsletter</a>
+      </article>
+    <% }) %>
+  </section>
+</main>
+<%- include("partials/foot") %>
+

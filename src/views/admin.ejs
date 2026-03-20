@@ -1,0 +1,82 @@
+<%- include("partials/head", { title: "Admin", site: site }) %>
+<main class="page admin-page">
+  <section class="simple-header">
+    <h1>Admin Control</h1>
+    <% if (message) { %><p class="message"><%= message %></p><% } %>
+  </section>
+
+  <section class="admin-grid">
+    <article class="admin-card">
+      <h2>Ενέργειες</h2>
+      <form action="/admin/preview?token=<%= token %>" method="post">
+        <button type="submit">Δημιουργία Preview</button>
+      </form>
+      <form action="/admin/send?token=<%= token %>" method="post">
+        <button type="submit">Generate + Send</button>
+      </form>
+      <form action="/admin/send-latest?token=<%= token %>" method="post">
+        <button type="submit">Send Latest Again</button>
+      </form>
+      <p>Ενεργοί subscribers: <strong><%= subscribers.length %></strong></p>
+      <% if (latestIssue) { %>
+        <p>Τελευταίο issue: <a href="/issues/<%= latestIssue.slug %>"><%= latestIssue.subject_line_el || latestIssue.title %></a></p>
+      <% } %>
+    </article>
+
+    <article class="admin-card">
+      <h2>Προσθήκη πηγής</h2>
+      <form action="/admin/sources?token=<%= token %>" method="post" class="stack">
+        <input type="text" name="name" placeholder="Όνομα πηγής" required />
+        <input type="url" name="url" placeholder="RSS URL" required />
+        <button type="submit">Προσθήκη</button>
+      </form>
+    </article>
+
+    <article class="admin-card">
+      <h2>Analytics</h2>
+      <% if (latestDashboard) { %>
+        <p>Open rate: <strong><%= latestDashboard.stats.openRate %>%</strong></p>
+        <p>Unique opens: <strong><%= latestDashboard.stats.opens %></strong></p>
+        <p>Total clicks: <strong><%= latestDashboard.stats.clicks %></strong></p>
+        <p>Recipients: <strong><%= latestDashboard.stats.recipients %></strong></p>
+      <% } else { %>
+        <p>Δεν υπάρχει ακόμη issue για analytics.</p>
+      <% } %>
+    </article>
+  </section>
+
+  <% if (latestDashboard && latestDashboard.stats.topLinks.length) { %>
+    <section class="cards">
+      <% latestDashboard.stats.topLinks.forEach((link) => { %>
+        <article class="card">
+          <p class="card-date"><%= link.clicks %> clicks</p>
+          <h3><%= link.ai_title_el || link.title %></h3>
+        </article>
+      <% }) %>
+    </section>
+  <% } %>
+
+  <section class="cards">
+    <% topReferrers.forEach((referrer) => { %>
+      <article class="card">
+        <p class="card-date"><%= referrer.referral_count %> referrals</p>
+        <h3><%= referrer.email %></h3>
+        <p>/r/<%= referrer.referral_code || "-" %></p>
+      </article>
+    <% }) %>
+  </section>
+
+  <section class="cards">
+    <% sources.forEach((source) => { %>
+      <article class="card">
+        <p class="card-date"><%= source.active ? "Active" : "Inactive" %></p>
+        <h3><%= source.name %></h3>
+        <p><%= source.url %></p>
+        <form action="/admin/sources/<%= source.id %>/toggle?token=<%= token %>" method="post">
+          <button type="submit"><%= source.active ? "Disable" : "Enable" %></button>
+        </form>
+      </article>
+    <% }) %>
+  </section>
+</main>
+<%- include("partials/foot") %>
