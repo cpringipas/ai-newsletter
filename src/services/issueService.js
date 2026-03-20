@@ -192,29 +192,28 @@ async function getIssueWithStoriesById(issueId) {
 
   return { issue, stories };
 }
-
 async function listIssues() {
-  const db = await getDb();
-  return db.all(`SELECT * FROM issues ORDER BY issue_date DESC`);
+    const db = await getDb();
+    return db.all(`SELECT * FROM issues ORDER BY issue_date DESC`);
 }
 
 async function getLatestIssueDashboard() {
-  const issue = await getLatestIssue();
-  if (!issue) {
-    return null;
-  }
+    const issue = await getLatestIssue();
+    if (!issue) {
+        return null;
+    }
 
-  const stats = await getIssueStats(issue.id);
-  return { issue, stats };
+    const stats = await getIssueStats(issue.id);
+    return { issue, stats };
 }
 
 module.exports = {
-  fetchAndStoreArticles,
-  processTopArticles,
-  createOrUpdateTodayIssue,
-  getLatestIssue,
-  getIssueWithStoriesBySlug,
-  getIssueWithStoriesById,
-  getLatestIssueDashboard,
-  listIssues,
+    fetchAndStoreArticles,
+    processTopArticles,
+    createOrUpdateTodayIssue,
+    getLatestIssue,
+    getIssueWithStoriesBySlug,
+    getIssueWithStoriesById,
+    getLatestIssueDashboard,
+    listIssues,
 };
