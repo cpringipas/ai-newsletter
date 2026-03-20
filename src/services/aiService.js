@@ -100,13 +100,13 @@ URL: ${article.url}
 ${article.rawContent || ""}
 `;
 
-  const response = await openai.responses.create({
-    model: config.openAiModel,
-    input: prompt,
-  });
+    const response = await openai.chat.completions.create({
+        model: config.openAiModel,
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" }
+    });
 
-  return JSON.parse(response.output_text || "{}");
-}
+    return JSON.parse(response.choices[0].message.content || "{}");
 
 async function generateIssueExtras(stories) {
   const openai = getClient();
