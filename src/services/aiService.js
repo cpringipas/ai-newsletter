@@ -107,26 +107,27 @@ ${article.rawContent || ""}
     });
 
     return JSON.parse(response.choices[0].message.content || "{}");
+}
 
-    async function generateIssueExtras(stories) {
-        const openai = getClient();
-        if (!openai) {
-            return {
-                subjectLine: "AI σήμερα: 7 πράγματα που αξίζει να δεις πριν τα μάθουν όλοι",
-                curiosityHook:
-                    "Ένα από τα σημερινά νέα μπορεί να γλιτώσει ώρες δουλειάς σε σχολείο, γραφείο ή μικρή επιχείρηση.",
-                intro:
-                    "Σήμερα μαζέψαμε τις ειδήσεις AI που δεν είναι μόνο για tech κόσμο. Είναι για το γραφείο, την τάξη και τη μικρή επιχείρηση που θέλει να τρέχει πιο έξυπνα και με λιγότερο χάος.",
-                toolOfDay:
-                    "Εργαλείο της ημέρας: πάρε ένα AI chatbot και ζήτα του να γράψει 3 εκδοχές για post, email ή ανακοίνωση. Είναι σαν να έχεις βοηθό, αλλά χωρίς διάλειμμα για καφέ.",
-                ideaOfDay:
-                    "Ιδέα της ημέρας: διάλεξε μία εργασία που κάνεις κάθε μέρα στην επιχείρηση ή στο σχολείο και φτιάξε ένα prompt που να την κάνει σε 5 λεπτά αντί για 20.",
-                shareCta:
-                    "Αν σου φάνηκε χρήσιμο, στείλ' το σε έναν φίλο που έχει μαγαζί, σχολική τάξη ή μια ιδέα που θέλει να τρέξει πιο γρήγορα.",
-            };
-        }
+async function generateIssueExtras(stories) {
+    const openai = getClient();
+    if (!openai) {
+        return {
+            subjectLine: "AI σήμερα: 7 πράγματα που αξίζει να δεις πριν τα μάθουν όλοι",
+            curiosityHook:
+                "Ένα από τα σημερινά νέα μπορεί να γλιτώσει ώρες δουλειάς σε σχολείο, γραφείο ή μικρή επιχείρηση.",
+            intro:
+                "Σήμερα μαζέψαμε τις ειδήσεις AI που δεν είναι μόνο για tech κόσμο. Είναι για το γραφείο, την τάξη και τη μικρή επιχείρηση που θέλει να τρέχει πιο έξυπνα και με λιγότερο χάος.",
+            toolOfDay:
+                "Εργαλείο της ημέρας: πάρε ένα AI chatbot και ζήτα του να γράψει 3 εκδοχές για post, email ή ανακοίνωση. Είναι σαν να έχεις βοηθό, αλλά χωρίς διάλειμμα για καφέ.",
+            ideaOfDay:
+                "Ιδέα της ημέρας: διάλεξε μία εργασία που κάνεις κάθε μέρα στην επιχείρηση ή στο σχολείο και φτιάξε ένα prompt που να την κάνει σε 5 λεπτά αντί για 20.",
+            shareCta:
+                "Αν σου φάνηκε χρήσιμο, στείλ' το σε έναν φίλο που έχει μαγαζί, σχολική τάξη ή μια ιδέα που θέλει να τρέξει πιο γρήγορα.",
+        };
+    }
 
-        const prompt = `
+    const prompt = `
 Είσαι συντάκτης viral αλλά ποιοτικού ελληνικού newsletter για AI.
 
 Κοινό:
@@ -157,17 +158,16 @@ ${article.rawContent || ""}
 ${stories.map((story, index) => `${index + 1}. ${story.ai_title_el || story.title}`).join("\n")}
 `;
 
-        // --- THIS IS THE NEW GEMINI COMPATIBLE CODE ---
-        const response = await openai.chat.completions.create({
-            model: config.openAiModel,
-            messages: [{ role: "user", content: prompt }],
-            response_format: { type: "json_object" }
-        });
+    const response = await openai.chat.completions.create({
+        model: config.openAiModel,
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" }
+    });
 
-        return JSON.parse(response.choices[0].message.content || "{}");
-    }
+    return JSON.parse(response.choices[0].message.content || "{}");
+}
 
-    module.exports = {
-        summarizeArticle,
-        generateIssueExtras,
-    };
+module.exports = {
+    summarizeArticle,
+    generateIssueExtras,
+};
