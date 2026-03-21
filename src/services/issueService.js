@@ -85,6 +85,15 @@ async function createOrUpdateTodayIssue() {
     );
 
     const issue = await db.get(`SELECT * FROM issues WHERE issue_date = ?`, [issueDate]);
+
+    await db.run(`DELETE FROM issue_articles WHERE issue_id = ?`, [issue.id]);
+    for (let i = 0; i < stories.length; i++) {
+        await db.run(
+            `INSERT OR IGNORE INTO issue_articles (issue_id, article_id, position) VALUES (?, ?, ?)`,
+            [issue.id, stories[i].id, i]
+        );
+    }
+
     return issue;
 }
 
@@ -105,6 +114,20 @@ async function getLatestIssueDashboard() {
     return { issue, stats };
 }
 
+async function getIssueWithStoriesById(issueId) {
+    const db = await getDb();
+    const issue = await db.get(`SELECT * FROM issues WHERE id = ?`, [issueId]);
+    const stories = await db.all(
+        `SELECT a.*
+         FROM articles a
+         JOIN issue_articles ia ON ia.article_id = a.id
+         WHERE ia.issue_id = ?
+         ORDER BY ia.position ASC`,
+        [issueId]
+    );
+    return { issue, stories };
+}
+
 // Fixed exports block
 module.exports = {
     fetchAndStoreArticles,
@@ -112,5 +135,6 @@ module.exports = {
     createOrUpdateTodayIssue,
     getLatestIssue,
     getLatestIssueDashboard,
+    getIssueWithStoriesById,
     listIssues,
 };
