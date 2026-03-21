@@ -42,7 +42,7 @@ module.exports = {
   },
   resendApiKey: process.env.RESEND_API_KEY || "",
   geminiApiKey: process.env.GEMINI_API_KEY || "",
-  geminiModel: process.env.GEMINI_MODEL || "gemini-pro",
+  geminiModel: process.env.GEMINI_MODEL || "gemini-2.0-flash",
   maxStoriesPerIssue: Number(process.env.MAX_STORIES_PER_ISSUE || 7),
 };
 
