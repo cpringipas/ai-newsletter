@@ -128,6 +128,21 @@ async function getIssueWithStoriesById(issueId) {
     return { issue, stories };
 }
 
+async function getIssueWithStoriesBySlug(slug) {
+    const db = await getDb();
+    const issue = await db.get(`SELECT * FROM issues WHERE slug = ?`, [slug]);
+    if (!issue) return null;
+    const stories = await db.all(
+        `SELECT a.*
+         FROM articles a
+         JOIN issue_articles ia ON ia.article_id = a.id
+         WHERE ia.issue_id = ?
+         ORDER BY ia.position ASC`,
+        [issue.id]
+    );
+    return { issue, stories };
+}
+
 // Fixed exports block
 module.exports = {
     fetchAndStoreArticles,
@@ -136,5 +151,6 @@ module.exports = {
     getLatestIssue,
     getLatestIssueDashboard,
     getIssueWithStoriesById,
+    getIssueWithStoriesBySlug,
     listIssues,
 };
