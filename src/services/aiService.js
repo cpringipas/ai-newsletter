@@ -1,18 +1,15 @@
-const OpenAI = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const config = require("../config");
 
 let client = null;
 
 function getClient() {
-  if (!config.openAiApiKey) {
+  if (!config.geminiApiKey) {
     return null;
   }
 
   if (!client) {
-    client = new OpenAI({
-      apiKey: config.openAiApiKey,
-      baseURL: config.openAiBaseUrl || undefined,
-    });
+    client = new GoogleGenerativeAI(config.geminiApiKey);
   }
 
   return client;
@@ -50,8 +47,8 @@ function buildFallbackSummary(article) {
 }
 
 async function summarizeArticle(article) {
-  const openai = getClient();
-  if (!openai) {
+  const gemini = getClient();
+  if (!gemini) {
     return buildFallbackSummary(article);
   }
 
@@ -100,34 +97,36 @@ URL: ${article.url}
 ${article.rawContent || ""}
 `;
 
-    const response = await openai.chat.completions.create({
-        model: config.openAiModel,
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" }
-    });
-
-    return JSON.parse(response.choices[0].message.content || "{}");
+  try {
+    const model = gemini.getGenerativeModel({ model: config.geminiModel });
+    const response = await model.generateContent(prompt);
+    const text = response.response.text();
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Gemini API error:", error);
+    return buildFallbackSummary(article);
+  }
 }
 
 async function generateIssueExtras(stories) {
-    const openai = getClient();
-    if (!openai) {
-        return {
-            subjectLine: "AI σήμερα: 7 πράγματα που αξίζει να δεις πριν τα μάθουν όλοι",
-            curiosityHook:
-                "Ένα από τα σημερινά νέα μπορεί να γλιτώσει ώρες δουλειάς σε σχολείο, γραφείο ή μικρή επιχείρηση.",
-            intro:
-                "Σήμερα μαζέψαμε τις ειδήσεις AI που δεν είναι μόνο για tech κόσμο. Είναι για το γραφείο, την τάξη και τη μικρή επιχείρηση που θέλει να τρέχει πιο έξυπνα και με λιγότερο χάος.",
-            toolOfDay:
-                "Εργαλείο της ημέρας: πάρε ένα AI chatbot και ζήτα του να γράψει 3 εκδοχές για post, email ή ανακοίνωση. Είναι σαν να έχεις βοηθό, αλλά χωρίς διάλειμμα για καφέ.",
-            ideaOfDay:
-                "Ιδέα της ημέρας: διάλεξε μία εργασία που κάνεις κάθε μέρα στην επιχείρηση ή στο σχολείο και φτιάξε ένα prompt που να την κάνει σε 5 λεπτά αντί για 20.",
-            shareCta:
-                "Αν σου φάνηκε χρήσιμο, στείλ' το σε έναν φίλο που έχει μαγαζί, σχολική τάξη ή μια ιδέα που θέλει να τρέξει πιο γρήγορα.",
-        };
-    }
+  const gemini = getClient();
+  if (!gemini) {
+    return {
+      subjectLine: "AI σήμερα: 7 πράγματα που αξίζει να δεις πριν τα μάθουν όλοι",
+      curiosityHook:
+        "Ένα από τα σημερινά νέα μπορεί να γλιτώσει ώρες δουλειάς σε σχολείο, γραφείο ή μικρή επιχείρηση.",
+      intro:
+        "Σήμερα μαζέψαμε τις ειδήσεις AI που δεν είναι μόνο για tech κόσμο. Είναι για το γραφείο, την τάξη και τη μικρή επιχείρηση που θέλει να τρέχει πιο έξυπνα και με λιγότερο χάος.",
+      toolOfDay:
+        "Εργαλείο της ημέρας: πάρε ένα AI chatbot και ζήτα του να γράψει 3 εκδοχές για post, email ή ανακοίνωση. Είναι σαν να έχεις βοηθό, αλλά χωρίς διάλειμμα για καφέ.",
+      ideaOfDay:
+        "Ιδέα της ημέρας: διάλεξε μία εργασία που κάνεις κάθε μέρα στην επιχείρηση ή στο σχολείο και φτιάξε ένα prompt που να την κάνει σε 5 λεπτά αντί για 20.",
+      shareCta:
+        "Αν σου φάνηκε χρήσιμο, στείλ' το σε έναν φίλο που έχει μαγαζί, σχολική τάξη ή μια ιδέα που θέλει να τρέξει πιο γρήγορα.",
+    };
+  }
 
-    const prompt = `
+  const prompt = `
 Είσαι συντάκτης viral αλλά ποιοτικού ελληνικού newsletter για AI.
 
 Κοινό:
@@ -158,16 +157,30 @@ async function generateIssueExtras(stories) {
 ${stories.map((story, index) => `${index + 1}. ${story.ai_title_el || story.title}`).join("\n")}
 `;
 
-    const response = await openai.chat.completions.create({
-        model: config.openAiModel,
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" }
-    });
-
-    return JSON.parse(response.choices[0].message.content || "{}");
+  try {
+    const model = gemini.getGenerativeModel({ model: config.geminiModel });
+    const response = await model.generateContent(prompt);
+    const text = response.response.text();
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Gemini API error:", error);
+    return {
+      subjectLine: "AI σήμερα: 7 πράγματα που αξίζει να δεις πριν τα μάθουν όλοι",
+      curiosityHook:
+        "Ένα από τα σημερινά νέα μπορεί να γλιτώσει ώρες δουλειάς σε σχολείο, γραφείο ή μικρή επιχείρηση.",
+      intro:
+        "Σήμερα μαζέψαμε τις ειδήσεις AI που δεν είναι μόνο για tech κόσμο. Είναι για το γραφείο, την τάξη και τη μικρή επιχείρηση που θέλει να τρέχει πιο έξυπνα και με λιγότερο χάος.",
+      toolOfDay:
+        "Εργαλείο της ημέρας: πάρε ένα AI chatbot και ζήτα του να γράψει 3 εκδοχές για post, email ή ανακοίνωση. Είναι σαν να έχεις βοηθό, αλλά χωρίς διάλειμμα για καφέ.",
+      ideaOfDay:
+        "Ιδέα της ημέρας: διάλεξε μία εργασία που κάνεις κάθε μέρα στην επιχείρηση ή στο σχολείο και φτιάξε ένα prompt που να την κάνει σε 5 λεπτά αντί για 20.",
+      shareCta:
+        "Αν σου φάνηκε χρήσιμο, στείλ' το σε έναν φίλο που έχει μαγαζί, σχολική τάξη ή μια ιδέα που θέλει να τρέξει πιο γρήγορα.",
+    };
+  }
 }
 
 module.exports = {
-    summarizeArticle,
-    generateIssueExtras,
+  summarizeArticle,
+  generateIssueExtras,
 };

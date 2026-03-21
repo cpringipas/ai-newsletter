@@ -41,9 +41,8 @@ module.exports = {
     pass: process.env.SMTP_PASS || "",
   },
   resendApiKey: process.env.RESEND_API_KEY || "",
-  openAiApiKey: process.env.OPENAI_API_KEY || "",
-  openAiModel: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-  openAiBaseUrl: process.env.OPENAI_BASE_URL || "",
+  geminiApiKey: process.env.GEMINI_API_KEY || "",
+  geminiModel: process.env.GEMINI_MODEL || "gemini-1.5-flash",
   maxStoriesPerIssue: Number(process.env.MAX_STORIES_PER_ISSUE || 7),
 };
 
